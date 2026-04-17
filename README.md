@@ -1,6 +1,6 @@
 # 🏛️ Sistema de Gestión de Joyería AAC27
 
-> **Proyecto de Desarrollo Fullstack | SENA ADSO 2994281**
+> **Proyecto de Desarrollo Fullstack |**
 > Versión 2.0 | Desarrollado con Spring Boot 3, React 18 y Docker.
 
 ## 📖 Descripción
