@@ -1,0 +1,79 @@
+# =============================================================
+# PERFIL DE PRODUCCIÓN: application-prod.yml
+# Se activa con: java -jar app.jar --spring.profiles.active=prod
+# TODOS los valores sensibles vienen de variables de entorno.
+# Nunca hardcodear credenciales aquí (RNF-INF02).
+# =============================================================
+
+# ------------------------------------------------------------------
+# DATASOURCE DE PRODUCCIÓN
+# Las credenciales se inyectan desde variables de entorno Docker.
+# Ver docker-compose.yml para la definición de las variables.
+# ------------------------------------------------------------------
+spring:
+  datasource:
+    # ${DB_HOST} viene de la variable de entorno (ej: "db" en docker-compose)
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:gestor_abbyac27}?useSSL=true&requireSSL=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=America/Bogota
+    username: ${stephany}
+    password: ${stephanymb}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
+  jpa:
+    # En producción NUNCA mostrar SQL (expone datos sensibles en logs)
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  flyway:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:gestor_abbyac27}?useSSL=true&requireSSL=true&serverTimezone=America/Bogota
+    user: ${stephany}
+    password: ${stephanymb}
+
+# ------------------------------------------------------------------
+# CORS EN PRODUCCIÓN
+# Solo permite el dominio real del frontend desplegado.
+# ------------------------------------------------------------------
+cors:
+  allowed-origins:
+    - ${FRONTEND_URL:https://aac27.com}
+
+# ------------------------------------------------------------------
+# JWT EN PRODUCCIÓN
+# La clave secreta DEBE ser una variable de entorno larga y aleatoria.
+# Generar con: openssl rand -hex 64
+# ------------------------------------------------------------------
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: 28800000
+  refresh-expiration-ms: 604800000
+
+# ------------------------------------------------------------------
+# ACTUATOR EN PRODUCCIÓN
+# Solo exponemos health e info públicamente.
+# Las métricas solo se acceden desde localhost (para Prometheus).
+# ------------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# ------------------------------------------------------------------
+# LOGGING EN PRODUCCIÓN
+# Solo ERROR y WARN para no llenar los logs (RNF-MAN02)
+# ------------------------------------------------------------------
+logging:
+  level:
+    com.aac27.joyeria: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.security: WARN
+    root: WARN
+  # En producción el formato JSON facilita la ingesta en herramientas como ELK
+  pattern:
+    console: '{"timestamp":"%d{yyyy-MM-dd HH:mm:ss}","level":"%level","thread":"%thread","logger":"%logger{36}","message":"%msg"}%n'
+
+server:
+  port: ${SERVER_PORT:8080}

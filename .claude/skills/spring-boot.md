@@ -1,0 +1,12 @@
+# Spring Boot - Guías para este Proyecto
+- Java 21, Spring Boot 3.2+, Maven
+- Capas estrictas: `@RestController` → `@Service` → `@Repository`
+- DTOs de entrada/salida separados de `@Entity`. Usar `mapstruct` para conversiones.
+- Validación: `@Valid` en controllers + Bean Validation en DTOs.
+- Seguridad: `SecurityFilterChain`, `JwtAuthenticationFilter`, `@PreAuthorize("hasRole(...)")`
+- Transacciones: `@Transactional` solo en servicios. Rollback automático en `RuntimeException`.
+- Manejo de errores: `@ControllerAdvice` + `ApiResponse<T>` estándar.
+- Nunca exponer entidades en respuestas HTTP.
+- Logging: `@Slf4j`, niveles INFO/ERROR en prod. Nunca stacktraces al cliente.
+- Flyway: migraciones en `V{version}__{descripcion}.sql`. Ejecutar al inicio.
+- Pruebas: JUnit 5, Mockito, Testcontainers para integración.

@@ -1,0 +1,11 @@
+# React + Vite + TypeScript - Guías para este Proyecto
+- React 18, Vite, TypeScript estricto (`strict: true`)
+- Estado servidor: `@tanstack/react-query` (caché, refetch, invalidación)
+- Estado global: `zustand` (solo sesión, notificaciones, UI)
+- Formularios: `react-hook-form` + `zod` (esquemas alineados con backend)
+- Rutas: `react-router-dom` v6. Rutas protegidas por JWT.
+- HTTP: `axios` con interceptores (Bearer token, refresh automático ante 401)
+- Componentes: funcionales, hooks personalizados por feature, `shared/` para reutilizables
+- UX: `sonner` para toasts, skeletons para carga, `ErrorBoundary` por módulo
+- Validación frontend idéntica a backend. Mensajes en español.
+- Nunca usar `any`. Tipar respuestas de API con interfaces.

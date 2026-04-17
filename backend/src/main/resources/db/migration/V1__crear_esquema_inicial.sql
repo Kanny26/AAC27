@@ -1,0 +1,23 @@
+-- =============================================================
+-- Flyway Migration: V1__crear_esquema_inicial.sql
+-- Descripción: Script inicial que crea TODAS las tablas del
+--              Sistema de Gestión de Joyería AAC27.
+-- Referencia: Sección 3 (Modelo de Datos) del documento de
+--             Requisitos y Arquitectura AAC27 v2.0
+--
+-- REGLAS FLYWAY (Sección 4.1):
+-- 1. Nunca modificar este archivo una vez aplicado a la BD.
+-- 2. Para cambios futuros, crear V2__descripcion.sql
+-- 3. Flyway registra cada migración en la tabla flyway_schema_history.
+-- =============================================================
+
+-- TODO: Este archivo será completado en la siguiente fase.
+-- Contendrá la creación de las tablas definidas en la Sección 3:
+--   - rol (3.2)
+--   - usuario (3.1)
+--   - cliente (3.3)
+--   - categoria (3.4)
+--   - subcategoria (3.5)
+--   - material (3.6)
+--   - producto (3.7)
+--   - ... (resto del modelo de datos)
