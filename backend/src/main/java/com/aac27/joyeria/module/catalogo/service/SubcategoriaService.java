@@ -2,10 +2,8 @@ package com.aac27.joyeria.module.catalogo.service;
 
 import com.aac27.joyeria.module.catalogo.dto.SubcategoriaRequest;
 import com.aac27.joyeria.module.catalogo.dto.SubcategoriaResponse;
-import com.aac27.joyeria.module.catalogo.entity.Categoria;
 import com.aac27.joyeria.module.catalogo.entity.Subcategoria;
 import com.aac27.joyeria.module.catalogo.mapper.SubcategoriaMapper;
-import com.aac27.joyeria.module.catalogo.repository.CategoriaRepository;
 import com.aac27.joyeria.module.catalogo.repository.SubcategoriaRepository;
 import com.aac27.joyeria.shared.exception.ConflictoDatosException;
 import com.aac27.joyeria.shared.exception.RecursoNoEncontradoException;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class SubcategoriaService {
 
     private final SubcategoriaRepository subcategoriaRepository;
-    private final CategoriaRepository categoriaRepository;
     private final SubcategoriaMapper subcategoriaMapper;
 
     @Transactional(readOnly = true)
@@ -39,12 +36,8 @@ public class SubcategoriaService {
             throw new ConflictoDatosException("Ya existe una subcategoría con el nombre: " + request.getNombre());
         }
 
-        Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Categoría", request.getCategoriaId()));
-
         Subcategoria subcategoria = subcategoriaMapper.toEntity(request);
-        subcategoria.setCategoria(categoria);
-        
+
         return subcategoriaMapper.toResponse(subcategoriaRepository.save(subcategoria));
     }
 
@@ -58,12 +51,8 @@ public class SubcategoriaService {
             throw new ConflictoDatosException("Ya existe otra subcategoría con el nombre: " + request.getNombre());
         }
 
-        Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Categoría", request.getCategoriaId()));
-
         subcategoriaMapper.updateEntity(request, subcategoria);
-        subcategoria.setCategoria(categoria);
-        
+
         return subcategoriaMapper.toResponse(subcategoriaRepository.save(subcategoria));
     }
 

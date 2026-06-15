@@ -1,0 +1,62 @@
+# =============================================================
+# PERFIL DE DESARROLLO: application-dev.yml
+# Se activa cuando spring.profiles.active=dev
+# Contiene valores reales para desarrollo local.
+# NO commitear datos sensibles de producción aquí.
+# =============================================================
+
+# ------------------------------------------------------------------
+# DATASOURCE - CONFIGURACIÓN LOCAL DE MYSQL
+# Apunta a tu MySQL local o al contenedor Docker de desarrollo.
+# docker-compose.yml levanta MySQL en el puerto 3306.
+# ------------------------------------------------------------------
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/aac27_joyeria?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=America/Bogota
+    username: aac27_user
+    password: aac27_dev_password
+
+  jpa:
+    # En desarrollo mostramos el SQL generado por Hibernate
+    # para depurar errores de consultas
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # En desarrollo Flyway también está activo
+  flyway:
+    url: jdbc:mysql://localhost:3306/aac27_joyeria?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+    user: aac27_user
+    password: aac27_dev_password
+
+# ------------------------------------------------------------------
+# CORS - ORÍGENES PERMITIDOS EN DESARROLLO
+# El frontend React corre en localhost:5173 (Vite) o 3000 (CRA).
+# Permitimos ambos para flexibilidad en desarrollo.
+# ------------------------------------------------------------------
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:5173
+    - http://127.0.0.1:5173
+
+# ------------------------------------------------------------------
+# JWT EN DESARROLLO
+# Clave simple para desarrollo local (NO usar en producción)
+# ------------------------------------------------------------------
+jwt:
+  secret: dev-secret-key-aac27-joyeria-sistema-gestion-2026-muy-larga
+  expiration-ms: 28800000
+  refresh-expiration-ms: 604800000
+
+# ------------------------------------------------------------------
+# LOGGING EN DESARROLLO
+# Más verboso para facilitar el debug
+# ------------------------------------------------------------------
+logging:
+  level:
+    com.aac27.joyeria: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG

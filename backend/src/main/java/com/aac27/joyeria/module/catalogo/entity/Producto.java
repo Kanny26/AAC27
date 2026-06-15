@@ -4,6 +4,7 @@ import com.aac27.joyeria.module.proveedor.entity.Proveedor;
 import com.aac27.joyeria.shared.audit.BaseAuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -46,7 +47,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Producto extends BaseAuditEntity {
 
     @Id

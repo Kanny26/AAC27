@@ -1,0 +1,218 @@
+# =============================================================
+# APLICACIÓN: Sistema de Gestión de Joyería AAC27
+# Archivo: application.yml
+# Descripción: Configuración principal de Spring Boot.
+#              Usa perfiles dev/prod para separar entornos.
+# =============================================================
+
+# ------------------------------------------------------------------
+# INFORMACIÓN DE LA APLICACIÓN
+# Aparece en /actuator/info y en los logs al arrancar.
+# ------------------------------------------------------------------
+spring:
+  application:
+    name: aac27-joyeria-backend
+
+  # ----------------------------------------------------------------
+  # PERFILES DE SPRING
+  # Por defecto usamos el perfil "dev" (desarrollo local).
+  # En producción se activa el perfil "prod" con variables de entorno.
+  # Cambia a "prod" con: java -jar app.jar --spring.profiles.active=prod
+  # ----------------------------------------------------------------
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # ----------------------------------------------------------------
+  # DATASOURCE - CONEXIÓN A MYSQL
+  # Estas propiedades configuran el pool de conexiones a la BD.
+  # Los valores reales se definen en application-dev.yml y application-prod.yml
+  # ----------------------------------------------------------------
+  datasource:
+    # Driver de MySQL 8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # Configuración del pool HikariCP (el más rápido para Spring Boot)
+    hikari:
+      # Máximo de conexiones simultáneas al pool
+      maximum-pool-size: 10
+      # Mínimo de conexiones mantenidas en espera
+      minimum-idle: 2
+      # Tiempo máximo (ms) que una conexión puede estar inactiva antes de cerrarse
+      idle-timeout: 600000
+      # Tiempo máximo de vida de una conexión (10 minutos)
+      max-lifetime: 1800000
+      # Tiempo máximo (ms) para obtener una conexión del pool
+      connection-timeout: 30000
+      # Nombre del pool (aparece en logs para identificar conexiones)
+      pool-name: AAC27-HikariPool
+
+  # ----------------------------------------------------------------
+  # JPA / HIBERNATE
+  # Configura cómo Hibernate se comunica con la base de datos.
+  # ----------------------------------------------------------------
+  jpa:
+    # Dialecto específico para MySQL 8
+    # Le dice a Hibernate qué "sabor" de SQL generar
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      # IMPORTANTE: Con Flyway manejamos el esquema.
+      # "validate": Hibernate solo verifica que las entidades coincidan con la BD.
+      # Nunca usar "create" o "create-drop" en producción (borra datos).
+      ddl-auto: validate
+    properties:
+      hibernate:
+        # Formato SQL en los logs (visible solo si show-sql=true)
+        format_sql: true
+        # Optimización: usa el batch de JDBC para múltiples inserts/updates
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        # Zona horaria para fechas almacenadas en BD
+        jdbc.time_zone: America/Bogota
+    # Muestra las queries SQL generadas en los logs (APAGAR en producción)
+    show-sql: false
+    # Carga metadatos de todas las entidades al arrancar (más rápido en runtime)
+    open-in-view: false
+
+  # ----------------------------------------------------------------
+  # FLYWAY - MIGRACIONES DE BASE DE DATOS
+  # Al arrancar, Flyway busca scripts en:
+  # resources/db/migration/V{numero}__{descripcion}.sql
+  # Los aplica en orden si no han sido aplicados antes.
+  # ----------------------------------------------------------------
+  flyway:
+    # Activa Flyway automáticamente al arrancar
+    enabled: true
+    # Ubica los scripts de migración
+    locations: classpath:db/migration
+    # Prefijo de los archivos de migración versionados
+    sql-migration-prefix: V
+    # Separador entre versión y descripción (dos guiones bajos)
+    sql-migration-separator: __
+    # Extensión de los archivos SQL
+    sql-migration-suffixes: .sql
+    # Si la BD no tiene la tabla de historial de Flyway, la crea
+    baseline-on-migrate: false
+    # Encoding de los scripts SQL
+    encoding: UTF-8
+    # Falla al arrancar si hay migraciones no aplicadas en scripts de producción
+    out-of-order: false
+
+  # ----------------------------------------------------------------
+  # JACKSON - SERIALIZACIÓN JSON
+  # Configura cómo Jackson convierte objetos Java a JSON y viceversa.
+  # ----------------------------------------------------------------
+  jackson:
+    # Formato de fechas ISO 8601: "2026-04-17T10:30:00"
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+    # Ignora campos null en la respuesta JSON (respuestas más limpias)
+    default-property-inclusion: non_null
+    # Zona horaria para serializar fechas
+    time-zone: America/Bogota
+
+  # ----------------------------------------------------------------
+  # SUBIDA DE ARCHIVOS
+  # Configura los límites para imágenes de productos y perfiles.
+  # El documento especifica: productos ≤ 5 MB, perfiles ≤ 2 MB.
+  # ----------------------------------------------------------------
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+# ------------------------------------------------------------------
+# SERVIDOR
+# Configura el servidor embebido Tomcat.
+# ------------------------------------------------------------------
+server:
+  # Puerto donde corre la API (el frontend en React llamará aquí)
+  port: 8080
+  # Prefijo para TODOS los endpoints de la API (ver Sección 4.3)
+  # Ej: http://localhost:8080/api/v1/productos
+  servlet:
+    context-path: /
+  # Compresión de respuestas HTTP para reducir ancho de banda
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: application/json,application/xml,text/html,text/plain
+
+# ------------------------------------------------------------------
+# CONFIGURACIÓN JWT
+# Propiedades personalizadas para nuestro filtro JWT.
+# Los valores son placeholders; los reales van en application-dev.yml
+# y application-prod.yml via variables de entorno.
+# ------------------------------------------------------------------
+jwt:
+  # Clave secreta para firmar los tokens (mínimo 256 bits = 32 chars)
+  # NUNCA hardcodear en producción. Usar variable de entorno JWT_SECRET.
+  secret: ${JWT_SECRET:cambia-esta-clave-secreta-en-produccion-debe-ser-larga}
+  # Tiempo de expiración del TOKEN DE ACCESO: 8 horas en milisegundos
+  # 8h * 60min * 60seg * 1000ms = 28,800,000 ms
+  # Requerido por RF02: "Token JWT emitido tras autenticación exitosa (exp: 8h)"
+  expiration-ms: 28800000
+  # Tiempo de expiración del REFRESH TOKEN: 7 días en milisegundos
+  # 7d * 24h * 60min * 60seg * 1000ms = 604,800,000 ms
+  # Requerido por RF02: "Refresh token (exp: 7d)"
+  refresh-expiration-ms: 604800000
+  # Prefijo del header de autorización
+  token-prefix: "Bearer "
+  # Nombre del header HTTP donde se envía el token
+  header-name: "Authorization"
+
+# ------------------------------------------------------------------
+# ACTUATOR - MONITOREO
+# Configura qué endpoints de monitoreo se exponen.
+# Requerido por RNF-MAN07.
+# ------------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        # En desarrollo exponemos todos los endpoints de monitoreo
+        # En producción solo "health" e "info" deberían exponerse públicamente
+        include: health,info,metrics,flyway
+      base-path: /actuator
+  endpoint:
+    health:
+      # Muestra detalles de salud (BD, servicios externos)
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+# ------------------------------------------------------------------
+# INFORMACIÓN DEL BUILD
+# Aparece en /actuator/info
+# ------------------------------------------------------------------
+info:
+  app:
+    name: "AAC27 - Sistema de Gestión de Joyería"
+    description: "API REST para la gestión integral de joyería AAC27"
+    version: "1.0.0"
+    java-version: "21.0.3"
+
+# ------------------------------------------------------------------
+# LOGGING
+# Configura los niveles de log para diferentes paquetes.
+# RNF-MAN02: "ERROR para excepciones, INFO para operaciones clave"
+# ------------------------------------------------------------------
+logging:
+  level:
+    # Paquete raíz del proyecto: INFO (ver operaciones importantes)
+    com.aac27.joyeria: INFO
+    # Hibernate SQL: solo visible con DEBUG (apagar en producción)
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql: WARN
+    # Spring Security: WARN en producción para no llenar logs
+    org.springframework.security: WARN
+    # Flyway: INFO para ver qué migraciones se aplican
+    org.flywaydb: INFO
+  pattern:
+    # Formato del log en consola: fecha, nivel, hilo, clase, mensaje
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -1,4 +1,4 @@
-package main.java.com.aac27.joyeria.module.catalogo.entity;
+package com.aac27.joyeria.module.catalogo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

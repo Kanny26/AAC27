@@ -14,15 +14,15 @@ import org.mapstruct.MappingTarget;
 public interface SubcategoriaMapper {
 
     @Mapping(target = "id", source = "subcategoriaId")
-    @Mapping(target = "categoriaId", source = "categoria.categoriaId")
-    @Mapping(target = "nombreCategoria", source = "categoria.nombre")
     SubcategoriaResponse toResponse(Subcategoria entity);
 
     @Mapping(target = "subcategoriaId", ignore = true)
-    @Mapping(target = "categoria", ignore = true) // Seteado en el Service
+    @Mapping(target = "estado", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     Subcategoria toEntity(SubcategoriaRequest request);
 
     @Mapping(target = "subcategoriaId", ignore = true)
-    @Mapping(target = "categoria", ignore = true)
+    @Mapping(target = "estado", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     void updateEntity(SubcategoriaRequest request, @MappingTarget Subcategoria entity);
 }

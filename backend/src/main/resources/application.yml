@@ -20,7 +20,7 @@ spring:
   # Cambia a "prod" con: java -jar app.jar --spring.profiles.active=prod
   # ----------------------------------------------------------------
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   # ----------------------------------------------------------------
   # DATASOURCE - CONEXIÓN A MYSQL

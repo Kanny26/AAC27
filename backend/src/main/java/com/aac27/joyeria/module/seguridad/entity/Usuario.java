@@ -3,6 +3,7 @@ package com.aac27.joyeria.module.seguridad.entity;
 import com.aac27.joyeria.shared.audit.BaseAuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,7 +43,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Usuario extends BaseAuditEntity implements UserDetails {
 
     // ============================================================

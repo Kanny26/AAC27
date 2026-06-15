@@ -11,6 +11,4 @@ import lombok.Getter;
 public class SubcategoriaResponse {
     private Long id;
     private String nombre;
-    private Long categoriaId;
-    private String nombreCategoria;
 }
