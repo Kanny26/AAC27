@@ -1,0 +1,55 @@
+name: aac27-dev
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: aac27-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-aac27_joyeria}
+      MYSQL_USER: ${MYSQL_USER:-aac27_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-aac27_dev_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-aac27_root_password}
+      TZ: ${TZ:-America/Bogota}
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - aac27_mysql_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=-05:00
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - aac27-network
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: aac27-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - aac27_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - aac27-network
+
+volumes:
+  aac27_mysql_data:
+  aac27_redis_data:
+
+networks:
+  aac27-network:
+    driver: bridge

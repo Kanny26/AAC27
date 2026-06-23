@@ -195,7 +195,7 @@ info:
     name: "AAC27 - Sistema de Gestión de Joyería"
     description: "API REST para la gestión integral de joyería AAC27"
     version: "1.0.0"
-    java-version: "21.0.3"
+    java-version: "23"
 
 # ------------------------------------------------------------------
 # LOGGING

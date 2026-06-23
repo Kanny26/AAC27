@@ -8,13 +8,14 @@
 # ------------------------------------------------------------------
 # DATASOURCE - CONFIGURACIÓN LOCAL DE MYSQL
 # Apunta a tu MySQL local o al contenedor Docker de desarrollo.
-# docker-compose.yml levanta MySQL en el puerto 3306.
+# docker-compose.yml levanta MySQL en el puerto 3307 del host
+# para no chocar con instalaciones locales de MySQL en 3306.
 # ------------------------------------------------------------------
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/aac27_joyeria?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=America/Bogota
-    username: aac27_user
-    password: aac27_dev_password
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/aac27_joyeria?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=America/Bogota}
+    username: ${SPRING_DATASOURCE_USERNAME:aac27_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:aac27_dev_password}
 
   jpa:
     # En desarrollo mostramos el SQL generado por Hibernate
@@ -26,9 +27,9 @@ spring:
 
   # En desarrollo Flyway también está activo
   flyway:
-    url: jdbc:mysql://localhost:3306/aac27_joyeria?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
-    user: aac27_user
-    password: aac27_dev_password
+    url: ${SPRING_FLYWAY_URL:jdbc:mysql://localhost:3307/aac27_joyeria?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota}
+    user: ${SPRING_FLYWAY_USER:aac27_user}
+    password: ${SPRING_FLYWAY_PASSWORD:aac27_dev_password}
 
 # ------------------------------------------------------------------
 # CORS - ORÍGENES PERMITIDOS EN DESARROLLO
