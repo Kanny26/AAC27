@@ -77,7 +77,7 @@ public class CategoriaService {
         
         // Regla: No se puede desactivar si tiene productos activos (RF12)
         if (estado == Categoria.EstadoCategoria.inactivo) {
-            long productosActivos = productoRepository.countByCategoriaCategoria_idAndEstado(id, Producto.EstadoProducto.activo);
+        long productosActivos = productoRepository.countByCategoriaCategoriaIdAndEstado(id, Producto.EstadoProducto.activo);
             if (productosActivos > 0) {
                 throw new ReglaNegocioException("No se puede desactivar la categoría porque tiene " + productosActivos + " productos activos asociados.");
             }

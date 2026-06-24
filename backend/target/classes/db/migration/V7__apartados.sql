@@ -29,13 +29,13 @@ CREATE TABLE IF NOT EXISTS apartado (
     cliente_id         BIGINT UNSIGNED  NOT NULL COMMENT 'Apartado siempre requiere cliente identificado',
     usuario_id         BIGINT UNSIGNED  NOT NULL COMMENT 'Vendedor que registra',
     producto_id        BIGINT UNSIGNED  NOT NULL,
-    cantidad           INT              NOT NULL
+    cantidad           INT              NOT NULL,
         CONSTRAINT chk_apar_cantidad CHECK (cantidad > 0),
     precio_unitario    DECIMAL(14,2)    NOT NULL
         COMMENT 'Precio fijado al momento del apartado. Histórico — no cambia.',
-    total_a_pagar      DECIMAL(14,2)    NOT NULL
+    total_a_pagar      DECIMAL(14,2)    NOT NULL,
         CONSTRAINT chk_apar_total CHECK (total_a_pagar > 0),
-    total_abonado      DECIMAL(14,2)    NOT NULL DEFAULT 0.00
+    total_abonado      DECIMAL(14,2)    NOT NULL DEFAULT 0.00,
         CONSTRAINT chk_apar_abonado CHECK (total_abonado >= 0),
     saldo_pendiente    DECIMAL(14,2)    NOT NULL
         COMMENT 'total_a_pagar - total_abonado. Calculado/actualizado en Java.',
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS abono_apartado (
     abono_id       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     apartado_id    BIGINT UNSIGNED NOT NULL,
     metodo_pago_id BIGINT UNSIGNED NOT NULL,
-    monto          DECIMAL(14,2)   NOT NULL
+    monto          DECIMAL(14,2)   NOT NULL,
         CONSTRAINT chk_abono_apar_monto CHECK (monto > 0),
     es_primer_abono TINYINT(1)     NOT NULL DEFAULT 0
         COMMENT '1 si este es el abono inicial (debe ser >= 20% del total)',

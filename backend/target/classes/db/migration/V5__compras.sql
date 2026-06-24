@@ -24,15 +24,15 @@ CREATE TABLE IF NOT EXISTS compra (
     proveedor_id            BIGINT UNSIGNED  NOT NULL,
     usuario_id              BIGINT UNSIGNED  NOT NULL COMMENT 'Administrador que registró',
     fecha_factura           DATE             NOT NULL
-        CONSTRAINT chk_compra_fecha_fac CHECK (fecha_factura <= CURDATE()),
+        COMMENT 'Validado en Java: no puede ser futura',
     fecha_entrega_esperada  DATE             NULL
         COMMENT 'Validado en Java: >= fecha_factura',
     fecha_recepcion_real    DATE             NULL,
     metodo_pago_id          BIGINT UNSIGNED  NOT NULL,
     tipo_pago               ENUM('contado','credito') NOT NULL,
-    subtotal                DECIMAL(14,2)    NOT NULL DEFAULT 0.00
+    subtotal                DECIMAL(14,2)    NOT NULL DEFAULT 0.00,
         CONSTRAINT chk_compra_subtotal CHECK (subtotal >= 0),
-    total                   DECIMAL(14,2)    NOT NULL DEFAULT 0.00
+    total                   DECIMAL(14,2)    NOT NULL DEFAULT 0.00,
         CONSTRAINT chk_compra_total CHECK (total >= 0),
     estado                  ENUM('pendiente','recibido_parcial','recibido_completo','cancelada')
                             NOT NULL DEFAULT 'pendiente',
@@ -68,11 +68,11 @@ CREATE TABLE IF NOT EXISTS detalle_compra (
     detalle_compra_id   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     compra_id           BIGINT UNSIGNED NOT NULL,
     producto_id         BIGINT UNSIGNED NOT NULL,
-    cantidad_pedida     INT             NOT NULL
+    cantidad_pedida     INT             NOT NULL,
         CONSTRAINT chk_det_cantidad_pedida CHECK (cantidad_pedida > 0),
-    cantidad_recibida   INT             NOT NULL DEFAULT 0
+    cantidad_recibida   INT             NOT NULL DEFAULT 0,
         CONSTRAINT chk_det_cantidad_recibida CHECK (cantidad_recibida >= 0),
-    precio_unitario     DECIMAL(14,2)   NOT NULL
+    precio_unitario     DECIMAL(14,2)   NOT NULL,
         CONSTRAINT chk_det_precio CHECK (precio_unitario >= 0),
     subtotal            DECIMAL(14,2)   NOT NULL
         COMMENT 'cantidad_pedida × precio_unitario. Calculado en Java.',
@@ -102,9 +102,9 @@ CREATE INDEX idx_detalle_compra_producto ON detalle_compra (producto_id);
 CREATE TABLE IF NOT EXISTS credito_compra (
     credito_id       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     compra_id        BIGINT UNSIGNED NOT NULL,
-    monto_total      DECIMAL(14,2)   NOT NULL
+    monto_total      DECIMAL(14,2)   NOT NULL,
         CONSTRAINT chk_cred_monto CHECK (monto_total > 0),
-    saldo_pendiente  DECIMAL(14,2)   NOT NULL
+    saldo_pendiente  DECIMAL(14,2)   NOT NULL,
         CONSTRAINT chk_cred_saldo CHECK (saldo_pendiente >= 0),
     fecha_inicio     DATE            NOT NULL,
     fecha_vencimiento DATE           NOT NULL
@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS abono_credito_compra (
     abono_id        BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     credito_id      BIGINT UNSIGNED NOT NULL,
     metodo_pago_id  BIGINT UNSIGNED NOT NULL,
-    monto           DECIMAL(14,2)   NOT NULL
+    monto           DECIMAL(14,2)   NOT NULL,
         CONSTRAINT chk_abono_monto CHECK (monto > 0),
     fecha_abono     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     estado          ENUM('registrado','anulado') NOT NULL DEFAULT 'registrado',

@@ -30,14 +30,14 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
      * Cuenta productos ACTIVOS en una categoría.
      * Usado para validar si se puede desactivar una categoría (RF12).
      */
-    long countByCategoriaCategoria_idAndEstado(
+    long countByCategoriaCategoriaIdAndEstado(
             Long categoriaId, Producto.EstadoProducto estado);
 
     /**
      * Cuenta productos ACTIVOS con un material.
      * Usado para validar si se puede desactivar un material (RF14).
      */
-    long countByMaterialMaterial_idAndEstado(
+    long countByMaterialMaterialIdAndEstado(
             Long materialId, Producto.EstadoProducto estado);
 
     /**

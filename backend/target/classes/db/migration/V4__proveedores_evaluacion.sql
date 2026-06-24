@@ -20,11 +20,11 @@ CREATE TABLE IF NOT EXISTS evaluacion_proveedor (
     proveedor_id        BIGINT UNSIGNED NOT NULL,
     usuario_id          BIGINT UNSIGNED NOT NULL COMMENT 'Administrador que realizó la evaluación',
     -- Dimensiones de evaluación (escala 1-5)
-    calidad             TINYINT UNSIGNED NOT NULL
+    calidad             TINYINT UNSIGNED NOT NULL,
         CONSTRAINT chk_eval_calidad CHECK (calidad BETWEEN 1 AND 5),
-    tiempo_entrega      TINYINT UNSIGNED NOT NULL
+    tiempo_entrega      TINYINT UNSIGNED NOT NULL,
         CONSTRAINT chk_eval_tiempo CHECK (tiempo_entrega BETWEEN 1 AND 5),
-    precio              TINYINT UNSIGNED NOT NULL
+    precio              TINYINT UNSIGNED NOT NULL,
         CONSTRAINT chk_eval_precio CHECK (precio BETWEEN 1 AND 5),
     -- Promedio ponderado calculado y almacenado (evita recalcular en cada consulta)
     promedio_ponderado  DECIMAL(3,2)    NOT NULL

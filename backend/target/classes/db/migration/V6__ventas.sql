@@ -34,15 +34,15 @@ CREATE TABLE IF NOT EXISTS venta (
     -- Estado del pago (Sección 3.16): si el total ha sido cancelado, está pendiente o vencido
     estado_pago            ENUM('pagado','pendiente','vencido')
                            NOT NULL DEFAULT 'pendiente',
-    subtotal               DECIMAL(14,2)    NOT NULL DEFAULT 0.00
+    subtotal               DECIMAL(14,2)    NOT NULL DEFAULT 0.00,
         CONSTRAINT chk_venta_subtotal CHECK (subtotal >= 0),
-    descuento_total        DECIMAL(14,2)    NOT NULL DEFAULT 0.00
+    descuento_total        DECIMAL(14,2)    NOT NULL DEFAULT 0.00,
         CONSTRAINT chk_venta_descuento CHECK (descuento_total >= 0),
     puntos_fidelidad_usados INT UNSIGNED    NOT NULL DEFAULT 0
         COMMENT 'Puntos canjeados en esta venta. 1 punto = 100 COP descuento (RF-V03)',
     descuento_puntos       DECIMAL(14,2)    NOT NULL DEFAULT 0.00
         COMMENT 'Descuento en pesos generado por canje de puntos',
-    total                  DECIMAL(14,2)    NOT NULL DEFAULT 0.00
+    total                  DECIMAL(14,2)    NOT NULL DEFAULT 0.00,
         CONSTRAINT chk_venta_total CHECK (total >= 0),
     puntos_ganados         INT UNSIGNED     NOT NULL DEFAULT 0
         COMMENT '1 punto por cada 10,000 COP en compras (RF-V03)',
@@ -81,18 +81,18 @@ CREATE TABLE IF NOT EXISTS detalle_venta (
     detalle_venta_id     BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     venta_id             BIGINT UNSIGNED NOT NULL,
     producto_id          BIGINT UNSIGNED NOT NULL,
-    cantidad             INT             NOT NULL
+    cantidad             INT             NOT NULL,
         CONSTRAINT chk_det_venta_cantidad CHECK (cantidad > 0),
     precio_unitario      DECIMAL(14,2)   NOT NULL
         COMMENT 'Precio en el MOMENTO de la venta. Precio histórico — no FK al producto.',
     precio_con_descuento DECIMAL(14,2)   NOT NULL
         COMMENT 'precio_unitario - descuento_item. Nunca negativo.',
-    descuento_item       DECIMAL(14,2)   NOT NULL DEFAULT 0.00
+    descuento_item       DECIMAL(14,2)   NOT NULL DEFAULT 0.00,
         CONSTRAINT chk_det_desc CHECK (descuento_item >= 0),
     subtotal             DECIMAL(14,2)   NOT NULL
         COMMENT 'cantidad × precio_con_descuento. Calculado en Java.',
     -- Garantía por ítem (RF-V04)
-    garantia_meses       TINYINT UNSIGNED NOT NULL DEFAULT 0
+    garantia_meses       INT              NOT NULL DEFAULT 0
         COMMENT 'Duración de garantía en meses. 0 = sin garantía.',
     garantia_vence       DATE             NULL
         COMMENT 'fecha_venta + garantia_meses. Calculado en Java.',
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS pago_venta (
     pago_id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     venta_id        BIGINT UNSIGNED NOT NULL,
     metodo_pago_id  BIGINT UNSIGNED NOT NULL,
-    monto           DECIMAL(14,2)   NOT NULL
+    monto           DECIMAL(14,2)   NOT NULL,
         CONSTRAINT chk_pago_monto CHECK (monto > 0),
     tipo_pago       ENUM('abono','pago_completo','anticipo','canje_puntos') NOT NULL,
     fecha_pago      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -163,8 +163,10 @@ CREATE INDEX idx_pago_venta ON pago_venta (venta_id);
 CREATE TABLE IF NOT EXISTS credito_venta (
     credito_id       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     venta_id         BIGINT UNSIGNED NOT NULL,
-    monto_total      DECIMAL(14,2)   NOT NULL CONSTRAINT chk_cv_monto CHECK (monto_total > 0),
-    saldo_pendiente  DECIMAL(14,2)   NOT NULL CONSTRAINT chk_cv_saldo CHECK (saldo_pendiente >= 0),
+    monto_total      DECIMAL(14,2)   NOT NULL,
+    CONSTRAINT chk_cv_monto CHECK (monto_total > 0),
+    saldo_pendiente  DECIMAL(14,2)   NOT NULL,
+    CONSTRAINT chk_cv_saldo CHECK (saldo_pendiente >= 0),
     fecha_inicio     DATE            NOT NULL,
     fecha_vencimiento DATE           NOT NULL,
     estado           ENUM('activo','pagado','vencido') NOT NULL DEFAULT 'activo',

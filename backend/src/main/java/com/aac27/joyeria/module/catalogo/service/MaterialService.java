@@ -68,7 +68,7 @@ public class MaterialService {
         Material.EstadoMaterial estado = Material.EstadoMaterial.valueOf(nuevoEstado.toLowerCase());
         
         if (estado == Material.EstadoMaterial.inactivo) {
-            long productosActivos = productoRepository.countByMaterialMaterial_idAndEstado(id, Producto.EstadoProducto.activo);
+        long productosActivos = productoRepository.countByMaterialMaterialIdAndEstado(id, Producto.EstadoProducto.activo);
             if (productosActivos > 0) {
                 throw new ReglaNegocioException("No se puede desactivar el material porque tiene " + productosActivos + " productos activos asociados.");
             }
