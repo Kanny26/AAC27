@@ -30,11 +30,11 @@ CREATE TABLE IF NOT EXISTS producto (
     categoria_id BIGINT UNSIGNED  NOT NULL,
     material_id  BIGINT UNSIGNED  NOT NULL,
     proveedor_id BIGINT UNSIGNED  NULL     COMMENT 'Proveedor asociado (opcional)',
-    precio_costo DECIMAL(14,2)    NOT NULL CONSTRAINT chk_prod_costo CHECK (precio_costo >= 0),
+    precio_costo DECIMAL(14,2)    NOT NULL,
     precio_venta DECIMAL(14,2)    NOT NULL
         COMMENT 'Debe ser > precio_costo (validado en Java, RF-CAT01)',
-    stock        INT              NOT NULL DEFAULT 0  CONSTRAINT chk_prod_stock CHECK (stock >= 0),
-    stock_minimo INT              NOT NULL DEFAULT 5  CONSTRAINT chk_prod_stock_min CHECK (stock_minimo >= 0)
+    stock        INT              NOT NULL DEFAULT 0,
+    stock_minimo INT              NOT NULL DEFAULT 5
         COMMENT 'Umbral para alerta de stock bajo (RF-INV01)',
     imagen_url   VARCHAR(500)     NULL,
     numero_serie VARCHAR(100)     NULL COMMENT 'Para productos únicos de alto valor',
@@ -49,6 +49,9 @@ CREATE TABLE IF NOT EXISTS producto (
 
     CONSTRAINT pk_producto        PRIMARY KEY (producto_id),
     CONSTRAINT uq_producto_codigo UNIQUE (codigo),
+    CONSTRAINT chk_prod_costo     CHECK (precio_costo >= 0),
+    CONSTRAINT chk_prod_stock     CHECK (stock >= 0),
+    CONSTRAINT chk_prod_stock_min CHECK (stock_minimo >= 0),
     CONSTRAINT fk_prod_categoria  FOREIGN KEY (categoria_id)
         REFERENCES categoria (categoria_id)
         ON UPDATE CASCADE ON DELETE RESTRICT,
@@ -107,7 +110,7 @@ CREATE TABLE IF NOT EXISTS producto_trazabilidad (
     created_at               DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_trazabilidad      PRIMARY KEY (trazabilidad_id),
-    CONSTRAINT uq_trazabilidad_prod UNIQUE (producto_id),  -- 1 producto : 1 registro
+    CONSTRAINT uq_trazabilidad_prod UNIQUE (producto_id),  -- 1 producto: 1 registro
     CONSTRAINT fk_traz_producto     FOREIGN KEY (producto_id)
         REFERENCES producto (producto_id)
         ON UPDATE CASCADE ON DELETE CASCADE
@@ -127,10 +130,10 @@ CREATE TABLE IF NOT EXISTS inventario_movimiento (
     movimiento_id    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     producto_id      BIGINT UNSIGNED NOT NULL,
     tipo             ENUM('entrada','salida','ajuste','reserva','liberacion') NOT NULL,
-    cantidad         INT             NOT NULL CONSTRAINT chk_mov_cantidad CHECK (cantidad != 0)
+    cantidad         INT             NOT NULL
         COMMENT 'Positivo para entradas, negativo para salidas',
-    stock_antes      INT             NOT NULL CONSTRAINT chk_mov_antes CHECK (stock_antes >= 0),
-    stock_despues    INT             NOT NULL CONSTRAINT chk_mov_despues CHECK (stock_despues >= 0),
+    stock_antes      INT             NOT NULL,
+    stock_despues    INT             NOT NULL,
     referencia_tipo  VARCHAR(50)     NOT NULL COMMENT 'venta, compra, ajuste, apartado',
     referencia_id    BIGINT UNSIGNED NOT NULL COMMENT 'ID del documento origen',
     usuario_id       BIGINT UNSIGNED NOT NULL,
@@ -139,6 +142,9 @@ CREATE TABLE IF NOT EXISTS inventario_movimiento (
     created_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_inventario_mov    PRIMARY KEY (movimiento_id),
+    CONSTRAINT chk_mov_cantidad     CHECK (cantidad != 0),
+    CONSTRAINT chk_mov_antes        CHECK (stock_antes >= 0),
+    CONSTRAINT chk_mov_despues      CHECK (stock_despues >= 0),
     CONSTRAINT fk_inv_producto      FOREIGN KEY (producto_id)
         REFERENCES producto (producto_id)
         ON UPDATE CASCADE ON DELETE RESTRICT,

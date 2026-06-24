@@ -69,15 +69,14 @@ CREATE TABLE IF NOT EXISTS proveedor (
     nombre       VARCHAR(255)     NOT NULL COMMENT 'Razón social o nombre comercial',
     documento    VARCHAR(50)      NOT NULL COMMENT 'NIT o cédula. Inmutable.',
     fecha_inicio DATE             NOT NULL COMMENT 'Inicio de relación comercial. No puede ser futura.',
-    minimo_compra DECIMAL(14,2)   NOT NULL DEFAULT 0.00
-        CONSTRAINT chk_prov_minimo CHECK (minimo_compra >= 0),
+    minimo_compra DECIMAL(14,2)   NOT NULL DEFAULT 0.00,
     estado       ENUM('activo','inactivo') NOT NULL DEFAULT 'activo',
     created_at   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_proveedor        PRIMARY KEY (proveedor_id),
     CONSTRAINT uq_proveedor_doc    UNIQUE (documento),
-    CONSTRAINT chk_proveedor_fecha CHECK (fecha_inicio <= CURDATE())
+    CONSTRAINT chk_prov_minimo     CHECK (minimo_compra >= 0)
 
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
@@ -217,7 +216,7 @@ CREATE TABLE IF NOT EXISTS promocion (
     promocion_id BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
     nombre       VARCHAR(150)     NOT NULL,
     tipo         ENUM('porcentaje','monto_fijo') NOT NULL,
-    valor        DECIMAL(10,2)    NOT NULL CONSTRAINT chk_promo_valor CHECK (valor > 0),
+    valor        DECIMAL(10,2)    NOT NULL,
     aplica_a     ENUM('venta','categoria','producto') NOT NULL,
     entidad_id   BIGINT UNSIGNED  NULL COMMENT 'ID de categoría o producto si aplica_a != venta',
     fecha_inicio DATE             NOT NULL,
@@ -225,6 +224,7 @@ CREATE TABLE IF NOT EXISTS promocion (
     activa       TINYINT(1)       NOT NULL DEFAULT 1,
 
     CONSTRAINT pk_promocion     PRIMARY KEY (promocion_id),
+    CONSTRAINT chk_promo_valor  CHECK (valor > 0),
     CONSTRAINT chk_promo_fechas CHECK (fecha_fin >= fecha_inicio)
 
 ) ENGINE=InnoDB

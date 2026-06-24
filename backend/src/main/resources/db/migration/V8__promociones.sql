@@ -28,22 +28,22 @@ CREATE TABLE IF NOT EXISTS promocion (
     descripcion     TEXT             NULL,
     tipo            ENUM('porcentaje','monto_fijo') NOT NULL
         COMMENT 'porcentaje: valor es 0-100. monto_fijo: valor en COP',
-    valor           DECIMAL(10,2)    NOT NULL
-        CONSTRAINT chk_promo_valor CHECK (valor > 0)
-        COMMENT 'Porcentaje (0-100) o monto fijo en COP según tipo',
+    valor           DECIMAL(10,2)    NOT NULL,
+        CONSTRAINT chk_promo_valor CHECK (valor > 0),
     aplica_a        ENUM('venta','categoria','producto') NOT NULL DEFAULT 'venta'
+        COMMENT 'Porcentaje (0-100) o monto fijo en COP según tipo'
         COMMENT 'Alcance de la promoción',
     entidad_id      BIGINT UNSIGNED  NULL
         COMMENT 'ID de categoría o producto si aplica_a != venta. NULL si aplica_a = venta',
     fecha_inicio    DATE             NOT NULL,
-    fecha_fin       DATE             NOT NULL
-        CONSTRAINT chk_promo_fechas CHECK (fecha_fin >= fecha_inicio),
+    fecha_fin       DATE             NOT NULL,
     activa          TINYINT(1)       NOT NULL DEFAULT 1
         COMMENT '0: desactivada manualmente. 1: activa. La vigencia se controla por fechas.',
     created_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_promocion PRIMARY KEY (promocion_id),
+    CONSTRAINT chk_promo_fechas CHECK (fecha_fin >= fecha_inicio),
     -- Máximo 100% de descuento cuando es porcentaje (validado en Java también)
     CONSTRAINT chk_promo_porcentaje CHECK (
         tipo != 'porcentaje' OR valor <= 100

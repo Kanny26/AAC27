@@ -46,6 +46,34 @@ services:
     networks:
       - aac27-network
 
+  backend:
+    profiles:
+      - backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: aac27-backend:dev
+    container_name: aac27-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-aac27_joyeria}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=America/Bogota
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-aac27_user}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-aac27_dev_password}
+      SPRING_FLYWAY_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-aac27_joyeria}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      SPRING_FLYWAY_USER: ${MYSQL_USER:-aac27_user}
+      SPRING_FLYWAY_PASSWORD: ${MYSQL_PASSWORD:-aac27_dev_password}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aac27-network
+
 volumes:
   aac27_mysql_data:
   aac27_redis_data:

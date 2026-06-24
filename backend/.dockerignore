@@ -1,0 +1,10 @@
+target/
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/dists/
+.idea/
+*.iml
+*.log
+.env
+.env.*
+Dockerfile
+.dockerignore
