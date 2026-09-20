@@ -1,3 +1,6 @@
 .env
 .env.local
 .env.*.local
+frontend/node_modules/
+frontend/dist/
+frontend/vite-dev*.log
