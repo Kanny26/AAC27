@@ -37,8 +37,7 @@ spring:
 # Solo permite el dominio real del frontend desplegado.
 # ------------------------------------------------------------------
 cors:
-  allowed-origins:
-    - ${FRONTEND_URL:https://aac27.com}
+  allowed-origins: ${FRONTEND_URL:https://aac27.com}
 
 # ------------------------------------------------------------------
 # JWT EN PRODUCCIÓN

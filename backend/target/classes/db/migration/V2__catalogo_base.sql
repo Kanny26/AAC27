@@ -208,31 +208,6 @@ CREATE TABLE IF NOT EXISTS proveedor_material (
   COMMENT='Materiales suministrados por cada proveedor (RF10: al menos uno requerido).';
 
 -- =============================================================
--- TABLA: promocion
--- Sección 3.28 — RF-V02.
--- Descuentos por porcentaje o monto fijo con vigencia.
--- =============================================================
-CREATE TABLE IF NOT EXISTS promocion (
-    promocion_id BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
-    nombre       VARCHAR(150)     NOT NULL,
-    tipo         ENUM('porcentaje','monto_fijo') NOT NULL,
-    valor        DECIMAL(10,2)    NOT NULL,
-    aplica_a     ENUM('venta','categoria','producto') NOT NULL,
-    entidad_id   BIGINT UNSIGNED  NULL COMMENT 'ID de categoría o producto si aplica_a != venta',
-    fecha_inicio DATE             NOT NULL,
-    fecha_fin    DATE             NOT NULL,
-    activa       TINYINT(1)       NOT NULL DEFAULT 1,
-
-    CONSTRAINT pk_promocion     PRIMARY KEY (promocion_id),
-    CONSTRAINT chk_promo_valor  CHECK (valor > 0),
-    CONSTRAINT chk_promo_fechas CHECK (fecha_fin >= fecha_inicio)
-
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci
-  COMMENT='Promociones y descuentos del sistema (RF-V02).';
-
--- =============================================================
 -- DATOS SEMILLA: Métodos de pago
 -- =============================================================
 INSERT IGNORE INTO metodo_pago (nombre, estado) VALUES
