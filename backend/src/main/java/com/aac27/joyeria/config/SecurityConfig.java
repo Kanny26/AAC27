@@ -45,6 +45,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UsuarioDetailsService usuarioDetailsService;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     // ============================================================
     // SECURITY FILTER CHAIN
@@ -80,8 +81,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // ── ENDPOINTS PÚBLICOS (no requieren token) ──────────────
-                        // Login y refresh token: el usuario no tiene token aún
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        // Solo login y renovación son públicos; /me y /registro exigen token
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/refresh-token").permitAll()
                         // Swagger UI: documentación de la API (en desarrollo)
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -98,7 +99,7 @@ public class SecurityConfig {
                         // en los métodos de servicio o controlador
                         .anyRequest().authenticated()
                 )
-
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint))
                 // Política STATELESS: Spring NO crea ni mantiene HttpSession
                 // Cada petición debe venir con su propio token JWT
                 .sessionManagement(session ->

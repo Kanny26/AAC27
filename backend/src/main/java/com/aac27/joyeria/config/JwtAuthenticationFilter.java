@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.IOException;
 
@@ -64,66 +65,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // Paso 1: Extraer el header Authorization de la petición
         final String authHeader = request.getHeader(AUTH_HEADER);
 
-        // Paso 2: Si no tiene token o no empieza con "Bearer ", dejamos pasar sin autenticar.
-        // Los endpoints públicos (/api/v1/auth/**) no necesitan token.
-        // Los privados serán rechazados por SecurityFilterChain más adelante.
+        // Sin cabecera "Bearer ...": se sigue como anónimo
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Paso 3: Extraer solo el token (quitamos el prefijo "Bearer ")
         final String token = authHeader.substring(BEARER_PREFIX.length());
 
-        // Paso 4: Validar técnicamente el token (firma y expiración)
-        if (!jwtUtil.esTokenTecnicamenteValido(token)) {
-            log.debug("Token inválido o expirado para la petición: {}", request.getRequestURI());
+        // Solo se aceptan tokens de ACCESO: un refresh token no autentica peticiones
+        if (!jwtUtil.esTokenTecnicamenteValido(token, JwtUtil.TIPO_ACCESS)) {
+            log.debug("Token inválido, expirado o de tipo incorrecto: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Paso 5: Extraer el correo del payload del token
         final String correo = jwtUtil.extraerCorreo(token);
 
-        // Paso 6: Solo procesamos si hay correo Y el usuario NO está ya autenticado en el contexto.
-        // La segunda condición evita re-autenticar en cada filtro de la cadena.
         if (correo != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
+                UserDetails userDetails = usuarioDetailsService.loadUserByUsername(correo);
 
-            // Cargamos el usuario de BD para obtener sus authorities (roles)
-            UserDetails userDetails = usuarioDetailsService.loadUserByUsername(correo);
-
-            // Verificamos que el token pertenezca a este usuario
-            if (jwtUtil.esTokenValido(token, userDetails)) {
-
-                // Paso 7: Creamos el objeto Authentication de Spring Security.
-                // UsernamePasswordAuthenticationToken(usuario, credenciales, authorities)
-                // credenciales = null porque ya estamos autenticados con el token
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,   // Principal: el objeto Usuario
-                                null,          // Credenciales: null (ya autenticado)
-                                userDetails.getAuthorities() // Roles del usuario
-                        );
-
-                // Añadimos detalles de la petición (IP, session) al authentication
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-
-                // Paso 8: Guardamos la autenticación en el SecurityContextHolder.
-                // A partir de aquí, Spring sabe que la petición es del usuario `correo`.
-                // @PreAuthorize y hasRole() consultan este contexto para autorizar.
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                log.debug("Usuario autenticado via JWT: {} para URI: {}",
-                        correo, request.getRequestURI());
+                // Revalida contra la BD: usuario activo y no bloqueado (RF05)
+                if (jwtUtil.esTokenValido(token, userDetails, JwtUtil.TIPO_ACCESS)) {
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Usuario autenticado via JWT: {} para URI: {}",
+                            correo, request.getRequestURI());
+                } else {
+                    log.warn("Token rechazado: usuario inactivo, bloqueado o token no corresponde");
+                }
+            } catch (UsernameNotFoundException e) {
+                // El usuario del token ya no existe: se trata como anónimo, no como error 500
+                log.warn("Token válido de un usuario que ya no existe");
             }
         }
 
-        // Paso 9: Pasamos la petición al siguiente filtro de la cadena
         filterChain.doFilter(request, response);
     }
 }

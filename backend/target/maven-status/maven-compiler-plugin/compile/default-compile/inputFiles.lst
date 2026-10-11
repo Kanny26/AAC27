@@ -59,6 +59,7 @@ C:\Users\hervi\karito\project_portfolio\AAC27\backend\src\main\java\com\aac27\jo
 C:\Users\hervi\karito\project_portfolio\AAC27\backend\src\main\java\com\aac27\joyeria\module\catalogo\dto\ProductoResponse.java
 C:\Users\hervi\karito\project_portfolio\AAC27\backend\src\main\java\com\aac27\joyeria\module\venta\entity\Venta.java
 C:\Users\hervi\karito\project_portfolio\AAC27\backend\src\main\java\com\aac27\joyeria\module\seguridad\service\UsuarioDetailsService.java
+C:\Users\hervi\karito\project_portfolio\AAC27\backend\src\main\java\com\aac27\joyeria\config\RestAuthenticationEntryPoint.java
 C:\Users\hervi\karito\project_portfolio\AAC27\backend\src\main\java\com\aac27\joyeria\module\compra\dto\CompraRequest.java
 C:\Users\hervi\karito\project_portfolio\AAC27\backend\src\main\java\com\aac27\joyeria\module\venta\dto\ClienteResponse.java
 C:\Users\hervi\karito\project_portfolio\AAC27\backend\src\main\java\com\aac27\joyeria\shared\exception\ConflictoDatosException.java

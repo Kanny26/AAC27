@@ -197,5 +197,6 @@ com\aac27\joyeria\module\compra\repository\CompraRepository.class
 com\aac27\joyeria\module\venta\controller\VentaController.class
 com\aac27\joyeria\module\venta\entity\PagoVenta$EstadoPago.class
 com\aac27\joyeria\module\proveedor\entity\Proveedor$EstadoProveedor.class
+com\aac27\joyeria\config\RestAuthenticationEntryPoint.class
 com\aac27\joyeria\module\postventa\dto\CasoPostventaResponse$DetalleCasoResponse$DetalleCasoResponseBuilder.class
 com\aac27\joyeria\module\catalogo\service\SubcategoriaService.class
