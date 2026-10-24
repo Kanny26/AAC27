@@ -138,7 +138,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public LoginResponse refrescarToken(String refreshToken) {
         // Validamos que el refresh token sea técnicamente correcto (firma y expiración)
-        if (!jwtUtil.esTokenTecnicamenteValido(refreshToken)) {
+        if (!jwtUtil.esTokenTecnicamenteValido(refreshToken, JwtUtil.TIPO_REFRESH)) {
             throw new IllegalArgumentException("El refresh token es inválido o ha expirado");
         }
 
@@ -147,7 +147,7 @@ public class AuthService {
         Usuario usuario = (Usuario) usuarioDetailsService.loadUserByUsername(correo);
 
         // Verificamos que el token pertenezca a este usuario y sea válido
-        if (!jwtUtil.esTokenValido(refreshToken, usuario)) {
+        if (!jwtUtil.esTokenValido(refreshToken, usuario, JwtUtil.TIPO_REFRESH)) {
             throw new IllegalArgumentException("El refresh token no es válido para este usuario");
         }
 
