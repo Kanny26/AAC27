@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.aac27.joyeria.JoyeriaApplicationTests
--------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.604 s -- in com.aac27.joyeria.JoyeriaApplicationTests
