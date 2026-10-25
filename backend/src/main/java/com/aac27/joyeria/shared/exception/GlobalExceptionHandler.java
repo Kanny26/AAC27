@@ -12,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.util.List;
 
@@ -177,7 +178,21 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.error("No tienes permisos para realizar esta acción"));
     }
+    @ExceptionHandler(TokenInvalidoException.class)
+    public ResponseEntity<ApiResponse<Void>> manejarTokenInvalido(TokenInvalidoException ex) {
+        log.warn("Token rechazado: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> manejarCuerpoIlegible(HttpMessageNotReadableException ex) {
+        log.warn("Cuerpo de la petición ausente o con JSON inválido");
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("El cuerpo de la petición es obligatorio y debe ser un JSON válido"));
+    }
     // ============================================================
     // ERROR GENÉRICO (500)
     // ============================================================

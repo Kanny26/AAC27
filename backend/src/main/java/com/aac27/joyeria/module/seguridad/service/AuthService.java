@@ -11,6 +11,8 @@ import com.aac27.joyeria.module.seguridad.repository.RolRepository;
 import com.aac27.joyeria.module.seguridad.repository.UsuarioRepository;
 import com.aac27.joyeria.shared.exception.ConflictoDatosException;
 import com.aac27.joyeria.shared.exception.RecursoNoEncontradoException;
+import com.aac27.joyeria.shared.exception.TokenInvalidoException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -137,28 +139,37 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public LoginResponse refrescarToken(String refreshToken) {
-        // Validamos que el refresh token sea técnicamente correcto (firma y expiración)
+        // Mensaje único: no revelamos si falló la firma, el tipo o el usuario
+        final String mensajeInvalido = "El refresh token es inválido o ha expirado";
+
+        // 1. Firma, expiración y tipo ("refresh")
         if (!jwtUtil.esTokenTecnicamenteValido(refreshToken, JwtUtil.TIPO_REFRESH)) {
-            throw new IllegalArgumentException("El refresh token es inválido o ha expirado");
+            throw new TokenInvalidoException(mensajeInvalido);
         }
 
-        // Extraemos el correo del token y cargamos el usuario
+        // 2. Cargamos el usuario; si ya no existe, es 401 y no un 500
         String correo = jwtUtil.extraerCorreo(refreshToken);
-        Usuario usuario = (Usuario) usuarioDetailsService.loadUserByUsername(correo);
-
-        // Verificamos que el token pertenezca a este usuario y sea válido
-        if (!jwtUtil.esTokenValido(refreshToken, usuario, JwtUtil.TIPO_REFRESH)) {
-            throw new IllegalArgumentException("El refresh token no es válido para este usuario");
+        Usuario usuario;
+        try {
+            usuario = (Usuario) usuarioDetailsService.loadUserByUsername(correo);
+        } catch (UsernameNotFoundException e) {
+            throw new TokenInvalidoException(mensajeInvalido);
         }
 
-        // Generamos únicamente un nuevo access token (el refresh token no se renueva aquí)
+        // 3. El token debe pertenecer a este usuario y seguir activo
+        if (!jwtUtil.esTokenValido(refreshToken, usuario, JwtUtil.TIPO_REFRESH)) {
+            throw new TokenInvalidoException(mensajeInvalido);
+        }
+
+        // Generamos únicamente un nuevo access token
+        // El refresh token no se renueva aquí
         String nuevoAccessToken = jwtUtil.generarAccessToken(usuario);
 
         log.info("Access token renovado para usuario: {}", correo);
 
         return LoginResponse.builder()
                 .accessToken(nuevoAccessToken)
-                .refreshToken(refreshToken) // Devolvemos el mismo refresh token
+                .refreshToken(refreshToken)
                 .expiresInMs(jwtProperties.getExpirationMs())
                 .usuarioId(usuario.getUsuarioId())
                 .nombre(usuario.getNombre())
