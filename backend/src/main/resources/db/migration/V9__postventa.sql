@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS caso_postventa (
     CONSTRAINT fk_caso_cliente FOREIGN KEY (cliente_id) REFERENCES cliente (cliente_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Casos de postventa (RF24)';
 
--- 2. TABLA HIJA (Herencia JOINED):
+-- 2. TABLA HIJA (Herencia JOINED): reparacion
 CREATE TABLE IF NOT EXISTS reparacion (
     caso_id                BIGINT UNSIGNED NOT NULL,
     descripcion_trabajo    TEXT            NOT NULL,
