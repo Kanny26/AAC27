@@ -94,4 +94,59 @@ class AuthSecurityTest extends AbstractMySqlTest {
                         .content("{}"))
                 .andExpect(status().isBadRequest());
     }
+
+    // ---------- Paso 3: refresh-token y cuerpos ilegibles ----------
+
+    @Test
+    void refreshConTokenBasuraDevuelve401() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/refresh-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"esto.no.es.un.jwt\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    void refreshConAccessTokenDevuelve401() throws Exception {
+        // Un access token NO sirve como refresh token (confusión de tipos)
+        String access = jwtUtil.generarAccessToken(FANTASMA);
+
+        mockMvc.perform(post("/api/v1/auth/refresh-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"" + access + "\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refreshValidoDeUsuarioInexistenteDevuelve401yNoError500() throws Exception {
+        String refresh = jwtUtil.generarRefreshToken(FANTASMA);
+
+        mockMvc.perform(post("/api/v1/auth/refresh-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"" + refresh + "\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refreshSinCuerpoDevuelve400() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/refresh-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void loginConJsonMalFormadoDevuelve400() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{esto no es json"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void loginConCredencialesInexistentesDevuelve401() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"correo\":\"fantasma@aac27.com\",\"password\":\"Clave12345\"}"))
+                .andExpect(status().isUnauthorized());
+    }
 }
