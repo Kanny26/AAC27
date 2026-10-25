@@ -161,13 +161,15 @@ public class AuthService {
             throw new TokenInvalidoException(mensajeInvalido);
         }
 
-        // Generamos únicamente un nuevo access token (el refresh token no se renueva aquí)
+        // Generamos únicamente un nuevo access token
+        // El refresh token no se renueva aquí
+        String nuevoAccessToken = jwtUtil.generarAccessToken(usuario);
 
         log.info("Access token renovado para usuario: {}", correo);
 
         return LoginResponse.builder()
                 .accessToken(nuevoAccessToken)
-                .refreshToken(refreshToken) // Devolvemos el mismo refresh token
+                .refreshToken(refreshToken)
                 .expiresInMs(jwtProperties.getExpirationMs())
                 .usuarioId(usuario.getUsuarioId())
                 .nombre(usuario.getNombre())
