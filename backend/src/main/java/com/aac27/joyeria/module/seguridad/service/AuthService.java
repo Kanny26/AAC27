@@ -15,6 +15,8 @@ import com.aac27.joyeria.shared.exception.TokenInvalidoException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -60,6 +62,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final PasswordEncoder passwordEncoder;
+    private final Environment environment;
 
     // ============================================================
     // LOGIN
@@ -191,7 +194,9 @@ public class AuthService {
      *
      * <p>En producción, la contraseña provisional se enviaría por correo
      * (RF06: "Contraseña provisional generada con UUID + envío por correo").
-     * Aquí la retornamos en el log solo con fines de desarrollo.
+     * Ese envío aún no existe; mientras tanto la contraseña SOLO se escribe en el
+     * log cuando el perfil {@code dev} está activo. En cualquier otro perfil nunca
+     * se registra, para no dejar credenciales en texto plano en los logs.
      *
      * @param request DTO con datos del nuevo usuario
      * @return Usuario creado
@@ -228,9 +233,11 @@ public class AuthService {
         String passwordProvisional = UUID.randomUUID().toString().substring(0, 12);
         String passwordHash = passwordEncoder.encode(passwordProvisional);
 
-        // SOLO para desarrollo: mostrar la contraseña en logs
-        // En producción esto se enviaría por correo y NUNCA se loggearía
-        log.info("🔑 [DEV ONLY] Contraseña provisional para {}: {}", request.getCorreo(), passwordProvisional);
+        // SOLO con el perfil "dev": mostrar la contraseña en el log para poder probar.
+        // En cualquier otro perfil NUNCA se registra (en producción se enviará por correo).
+        if (environment.acceptsProfiles(Profiles.of("dev"))) {
+            log.info("[DEV] Contraseña provisional para {}: {}", request.getCorreo(), passwordProvisional);
+        }
 
         // Construimos el usuario con el patrón Builder de Lombok
         Usuario nuevoUsuario = Usuario.builder()
