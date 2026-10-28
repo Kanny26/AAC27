@@ -5,10 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -150,13 +151,24 @@ public class SecurityConfig {
      *   <li>Llama a {@code usuarioDetailsService.loadUserByUsername(correo)}</li>
      *   <li>Llama a {@code passwordEncoder.matches(password, passwordHash)}</li>
      *   <li>Si coincide → autenticado. Si no → BadCredentialsException</li>
+     *   <li>Solo entonces comprueba que la cuenta esté activa y no bloqueada</li>
      * </ol>
+     *
+     * <p><strong>Por qué el estado de la cuenta se comprueba DESPUÉS de la contraseña:</strong>
+     * por defecto Spring Security lo comprueba ANTES. Eso permitiría a cualquiera,
+     * conociendo solo un correo, saber si la cuenta está inactiva (el mensaje sería distinto
+     * al de "credenciales incorrectas") sin necesitar la contraseña. Así, quien no demuestra
+     * la contraseña recibe siempre el mismo mensaje genérico.
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(usuarioDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
+        // Antes de la contraseña: no se comprueba nada
+        provider.setPreAuthenticationChecks(user -> { });
+        // Después de la contraseña: bloqueada, deshabilitada, expirada o credenciales vencidas
+        provider.setPostAuthenticationChecks(new AccountStatusUserDetailsChecker());
         return provider;
     }
 
@@ -167,12 +179,12 @@ public class SecurityConfig {
      * Lo necesitamos en {@code AuthService.login()} para delegar la verificación
      * de credenciales a Spring Security.
      *
-     * <p>Spring Boot lo configura automáticamente; aquí solo lo exponemos
-     * para poder inyectarlo donde lo necesitemos.
+     * <p>Se construye explícitamente con nuestro {@link #authenticationProvider()} para que
+     * el login use SIEMPRE la política de comprobaciones definida arriba, sin depender de
+     * cómo Spring Boot autoconfigure el manager por su cuenta.
      */
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(authenticationProvider());
     }
 }
