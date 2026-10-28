@@ -145,13 +145,16 @@ server:
 # ------------------------------------------------------------------
 # CONFIGURACIÓN JWT
 # Propiedades personalizadas para nuestro filtro JWT.
-# Los valores son placeholders; los reales van en application-dev.yml
-# y application-prod.yml via variables de entorno.
+# El secreto NO tiene valor por defecto aquí: cada perfil debe definirlo
+# (application-dev.yml, application-test.yml o la variable JWT_SECRET en prod).
+# Un valor por defecto en un repo público permitiría falsificar tokens si la
+# app arrancara con un perfil sin secreto propio.
 # ------------------------------------------------------------------
 jwt:
-  # Clave secreta para firmar los tokens (mínimo 256 bits = 32 chars)
+  # Clave secreta para firmar los tokens (mínimo 256 bits = 32 chars).
+  # Sin valor por defecto: si falta, la app NO arranca (fail-fast).
   # NUNCA hardcodear en producción. Usar variable de entorno JWT_SECRET.
-  secret: ${JWT_SECRET:cambia-esta-clave-secreta-en-produccion-debe-ser-larga}
+  secret: ${JWT_SECRET}
   # Tiempo de expiración del TOKEN DE ACCESO: 8 horas en milisegundos
   # 8h * 60min * 60seg * 1000ms = 28,800,000 ms
   # Requerido por RF02: "Token JWT emitido tras autenticación exitosa (exp: 8h)"
