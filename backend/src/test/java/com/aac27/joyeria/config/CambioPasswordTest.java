@@ -100,7 +100,8 @@ class CambioPasswordTest extends AbstractAuthTest {
             "Corta1",            // menos de 8 caracteres
             "sinmayuscula123",   // sin mayúscula
             "SinNumeroAquiYa",   // sin número
-            "A1" + "a".repeat(71) // más de 72 caracteres
+            // 73 caracteres (el máximo permitido es 72): "A1" + 71 letras "a"
+            "A1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     })
     void unaNuevaClaveQueNoCumpleLaPoliticaDevuelve400(String claveInvalida) throws Exception {
         String access = accessTokenDe(usuarioConClaveProvisional());
