@@ -41,8 +41,13 @@ public class PostventaController {
 
     /**
      * PUT /api/v1/postventa/{id}/estado — Actualiza el estado del caso.
+     *
+     * <p>RF25: gestionar casos es exclusivo del Administrador. El anotado a nivel de método
+     * tiene prioridad sobre el de la clase, así que el vendedor recibe 403 aquí aunque pueda
+     * abrir y consultar casos (RF24, RF26).
      */
     @PutMapping("/{id}/estado")
+    @PreAuthorize("hasRole('" + RolConstants.ADMINISTRADOR + "')")
     public ResponseEntity<ApiResponse<CasoPostventaResponse>> cambiarEstado(
             @PathVariable Long id,
             @RequestParam String nuevoEstado,
@@ -64,12 +69,10 @@ public class PostventaController {
             @PageableDefault(sort = "fechaApertura", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal Usuario usuario) {
         
-        // RF26: Si es vendedor, filtramos su vista en el frontend o aquí podemos 
-        // aplicar la regla de que solo vea los de su factura (para mantenerlo simple, 
-        // devolvemos los resultados de esa factura. La regla de lectura de ventas 
-        // ya protege quién ve qué ventas).
+        // RF26: el vendedor solo ve los casos de SUS ventas; el filtro lo aplica el servicio
+        // para que no dependa del frontend. El administrador ve todos.
         return ResponseEntity.ok(ApiResponse.ok(
-                postventaService.buscarPorFactura(factura, pageable),
+                postventaService.buscarPorFactura(factura, pageable, usuario),
                 "Resultados de búsqueda"
         ));
     }

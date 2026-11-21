@@ -11,6 +11,7 @@ import com.aac27.joyeria.module.postventa.entity.DetalleCasoPostventa;
 import com.aac27.joyeria.module.postventa.entity.HistorialCaso;
 import com.aac27.joyeria.module.postventa.entity.Reparacion;
 import com.aac27.joyeria.module.postventa.repository.CasoPostventaRepository;
+import com.aac27.joyeria.module.seguridad.entity.Rol;
 import com.aac27.joyeria.module.seguridad.entity.Usuario;
 import com.aac27.joyeria.module.venta.entity.Cliente;
 import com.aac27.joyeria.module.venta.entity.DetalleVenta;
@@ -183,9 +184,19 @@ public class PostventaService {
     // ──────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
-    public Page<CasoPostventaResponse> buscarPorFactura(String numeroFactura, Pageable pageable) {
-        return casoRepository.findByVentaNumeroFactura(numeroFactura, pageable)
-                .map(this::toResponse);
+    public Page<CasoPostventaResponse> buscarPorFactura(
+            String numeroFactura, Pageable pageable, Usuario usuario) {
+
+        // RF26: el administrador ve los casos de cualquier factura;
+        // el vendedor solo los de facturas que él mismo registró.
+        boolean esAdministrador = usuario.getRol().getNombre() == Rol.NombreRol.administrador;
+
+        Page<CasoPostventa> casos = esAdministrador
+                ? casoRepository.findByVentaNumeroFactura(numeroFactura, pageable)
+                : casoRepository.findByVentaNumeroFacturaYVendedor(
+                        numeroFactura, usuario.getUsuarioId(), pageable);
+
+        return casos.map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
