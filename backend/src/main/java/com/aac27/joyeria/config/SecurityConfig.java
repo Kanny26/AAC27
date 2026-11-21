@@ -19,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Configuración central de Spring Security.
@@ -47,6 +48,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UsuarioDetailsService usuarioDetailsService;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final ObjectMapper objectMapper;
 
     // ============================================================
     // SECURITY FILTER CHAIN
@@ -112,7 +114,10 @@ public class SecurityConfig {
 
                 // Insertamos el filtro JWT ANTES del filtro de autenticación por usuario/contraseña
                 // Spring Security evalúa los filtros en orden; el nuestro va primero
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // RF02: con contraseña provisional solo se puede ver el perfil y cambiarla
+                .addFilterAfter(new CambioPasswordObligatorioFilter(objectMapper), JwtAuthenticationFilter.class);
 
         return http.build();
     }
