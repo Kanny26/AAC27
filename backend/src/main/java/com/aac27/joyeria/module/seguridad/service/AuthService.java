@@ -26,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.aac27.joyeria.shared.mail.CorreoService;
+import com.aac27.joyeria.module.seguridad.dto.CambiarPasswordRequest;
+import com.aac27.joyeria.shared.exception.ReglaNegocioException;
+
 
 /**
  * Servicio de autenticación y gestión de usuarios del sistema.
@@ -262,5 +265,35 @@ public class AuthService {
 
 
         return guardado;
+    }
+    // ============================================================
+    // CAMBIO DE CONTRASEÑA (RF02, RF-S02)
+    // ============================================================
+
+    /**
+     * Cambia la contraseña del usuario autenticado y marca que ya no es provisional.
+     *
+     * <p>Se recarga el usuario desde la BD (el que llega del token no está gestionado por JPA).
+     * Nunca se registra ninguna contraseña en el log (RNF-SEG03).
+     *
+     * @throws ReglaNegocioException si la actual es incorrecta o la nueva es igual a la actual
+     */
+    @Transactional
+    public void cambiarPassword(Long usuarioId, CambiarPasswordRequest request) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(request.getPasswordActual(), usuario.getPassword())) {
+            throw new ReglaNegocioException("La contraseña actual es incorrecta");
+        }
+        if (passwordEncoder.matches(request.getPasswordNueva(), usuario.getPassword())) {
+            throw new ReglaNegocioException("La nueva contraseña debe ser distinta de la actual");
+        }
+
+        usuario.setPasswordHash(passwordEncoder.encode(request.getPasswordNueva()));
+        usuario.setEsPasswordTemporal(false);
+        usuarioRepository.save(usuario);
+
+        log.info("Contraseña actualizada para el usuario ID {}", usuarioId);
     }
 }
