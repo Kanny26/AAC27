@@ -29,6 +29,9 @@ import com.aac27.joyeria.shared.mail.CorreoService;
 import com.aac27.joyeria.module.seguridad.dto.CambiarPasswordRequest;
 import com.aac27.joyeria.shared.exception.ReglaNegocioException;
 
+import com.aac27.joyeria.module.seguridad.entity.PasswordHistorial;
+import com.aac27.joyeria.module.seguridad.repository.PasswordHistorialRepository;
+
 
 /**
  * Servicio de autenticación y gestión de usuarios del sistema.
@@ -68,6 +71,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final Environment environment;
     private final CorreoService correoService;
+    private final PasswordHistorialRepository passwordHistorialRepository;
 
     // ============================================================
     // LOGIN
@@ -256,6 +260,8 @@ public class AuthService {
                 .build();
 
         Usuario guardado = usuarioRepository.save(nuevoUsuario);
+        // RF-S02: la contraseña provisional es la primera del historial del usuario
+        registrarEnHistorial(guardado.getUsuarioId(), passwordHash);
         log.info("Usuario creado exitosamente con ID: {}", guardado.getUsuarioId());
 
         // RF06: enviamos la contraseña provisional por correo. Si falla lanza una
@@ -290,10 +296,28 @@ public class AuthService {
             throw new ReglaNegocioException("La nueva contraseña debe ser distinta de la actual");
         }
 
-        usuario.setPasswordHash(passwordEncoder.encode(request.getPasswordNueva()));
+        // RF-S02: no se puede reutilizar ninguna de las últimas 5 contraseñas (la vigente cuenta como una)
+        for (PasswordHistorial anterior :
+                passwordHistorialRepository.findTop5ByUsuarioIdOrderByHistorialIdDesc(usuarioId)) {
+            if (passwordEncoder.matches(request.getPasswordNueva(), anterior.getPasswordHash())) {
+                throw new ReglaNegocioException("No puedes reutilizar ninguna de tus últimas 5 contraseñas");
+            }
+        }
+
+        String nuevoHash = passwordEncoder.encode(request.getPasswordNueva());
+        usuario.setPasswordHash(nuevoHash);
         usuario.setEsPasswordTemporal(false);
         usuarioRepository.save(usuario);
+        registrarEnHistorial(usuarioId, nuevoHash);
 
         log.info("Contraseña actualizada para el usuario ID {}", usuarioId);
+    }
+
+    /** Guarda el hash (nunca la contraseña en claro) en el historial del usuario. */
+    private void registrarEnHistorial(Long usuarioId, String passwordHash) {
+        passwordHistorialRepository.save(PasswordHistorial.builder()
+                .usuarioId(usuarioId)
+                .passwordHash(passwordHash)
+                .build());
     }
 }
