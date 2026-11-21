@@ -193,6 +193,17 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error("El cuerpo de la petición es obligatorio y debe ser un JSON válido"));
     }
+
+    @ExceptionHandler(CorreoNoEnviadoException.class)
+    public ResponseEntity<ApiResponse<Void>> manejarCorreoNoEnviado(CorreoNoEnviadoException ex) {
+        // Detalle técnico solo en el log; al cliente no se le expone el error del SMTP
+        log.error("Correo obligatorio no enviado: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("No se pudo enviar el correo al usuario. "
+                        + "La cuenta no fue creada; revisa la configuración de correo e inténtalo de nuevo."));
+    }
+
     // ============================================================
     // ERROR GENÉRICO (500)
     // ============================================================
