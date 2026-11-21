@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.aac27.joyeria.module.seguridad.dto.CambiarPasswordRequest;
 
 import java.util.Map;
 
@@ -214,5 +215,26 @@ public class AuthController {
         );
 
         return ResponseEntity.ok(ApiResponse.ok(datos, "Perfil obtenido exitosamente"));
+    }
+    // ============================================================
+    // POST /api/v1/auth/cambiar-password
+    // ============================================================
+
+    /**
+     * Cambia la contraseña del usuario autenticado (RF02, RF-S02).
+     *
+     * <p>Endpoint PROTEGIDO: cualquier usuario autenticado, incluido quien aún tiene la
+     * contraseña provisional. El bloqueo del resto del sistema mientras no la cambie
+     * se implementa en el paso 3.
+     */
+    @PostMapping("/cambiar-password")
+    public ResponseEntity<ApiResponse<Void>> cambiarPassword(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            Usuario usuarioAutenticado,
+            @Valid @RequestBody CambiarPasswordRequest request) {
+
+        authService.cambiarPassword(usuarioAutenticado.getUsuarioId(), request);
+
+        return ResponseEntity.ok(ApiResponse.<Void>ok("Contraseña actualizada exitosamente"));
     }
 }
