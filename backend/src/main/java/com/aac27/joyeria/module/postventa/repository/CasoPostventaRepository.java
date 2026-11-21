@@ -15,6 +15,15 @@ public interface CasoPostventaRepository extends JpaRepository<CasoPostventa, Lo
     @Query("SELECT c FROM CasoPostventa c WHERE c.venta.numeroFactura = :factura")
     Page<CasoPostventa> findByVentaNumeroFactura(@Param("factura") String factura, Pageable pageable);
 
+    // RF26: igual que la anterior pero limitada a las ventas registradas por un vendedor
+    @Query("SELECT c FROM CasoPostventa c "
+            + "WHERE c.venta.numeroFactura = :factura "
+            + "AND c.venta.usuario.usuarioId = :vendedorId")
+    Page<CasoPostventa> findByVentaNumeroFacturaYVendedor(
+            @Param("factura") String factura,
+            @Param("vendedorId") Long vendedorId,
+            Pageable pageable);
+
     // Casos asignados a un cliente específico
     Page<CasoPostventa> findByClienteClienteId(Long clienteId, Pageable pageable);
 
