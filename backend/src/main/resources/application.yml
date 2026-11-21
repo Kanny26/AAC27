@@ -169,6 +169,17 @@ jwt:
   header-name: "Authorization"
 
 # ------------------------------------------------------------------
+# CORREO (RF06, RNF-INF02)
+# El envío real se activa con MAIL_ENABLED=true. En dev y test viene apagado.
+# ------------------------------------------------------------------
+app:
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:no-reply@aac27.local}
+
+    
+
+# ------------------------------------------------------------------
 # ACTUATOR - MONITOREO
 # Configura qué endpoints de monitoreo se exponen.
 # Requerido por RNF-MAN07.

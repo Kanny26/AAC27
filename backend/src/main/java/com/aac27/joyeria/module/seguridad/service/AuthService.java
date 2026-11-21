@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import com.aac27.joyeria.shared.mail.CorreoService;
 
 /**
  * Servicio de autenticación y gestión de usuarios del sistema.
@@ -63,6 +64,7 @@ public class AuthService {
     private final JwtProperties jwtProperties;
     private final PasswordEncoder passwordEncoder;
     private final Environment environment;
+    private final CorreoService correoService;
 
     // ============================================================
     // LOGIN
@@ -192,8 +194,7 @@ public class AuthService {
      * <p>La contraseña provisional se genera automáticamente con UUID
      * y se cifra con BCrypt antes de guardar (RNF-SEG03).
      *
-     * <p>En producción, la contraseña provisional se enviaría por correo
-     * (RF06: "Contraseña provisional generada con UUID + envío por correo").
+     * <p>La contraseña provisional se envía por correo (RF06) y nunca se registra en el log.
      * Ese envío aún no existe; mientras tanto la contraseña SOLO se escribe en el
      * log cuando el perfil {@code dev} está activo. En cualquier otro perfil nunca
      * se registra, para no dejar credenciales en texto plano en los logs.
@@ -233,9 +234,9 @@ public class AuthService {
         String passwordProvisional = UUID.randomUUID().toString().substring(0, 12);
         String passwordHash = passwordEncoder.encode(passwordProvisional);
 
-        // SOLO con el perfil "dev": mostrar la contraseña en el log para poder probar.
-        // En cualquier otro perfil NUNCA se registra (en producción se enviará por correo).
-        if (environment.acceptsProfiles(Profiles.of("dev"))) {
+        // Solo en dev y con el envío de correo apagado: mostrar la clave en el log para poder probar.
+        // Con el correo activo o en cualquier otro perfil NUNCA se registra (RNF-SEG03).
+        if (environment.acceptsProfiles(Profiles.of("dev")) && !correoService.estaHabilitado()) {
             log.info("[DEV] Contraseña provisional para {}: {}", request.getCorreo(), passwordProvisional);
         }
 
@@ -253,6 +254,12 @@ public class AuthService {
 
         Usuario guardado = usuarioRepository.save(nuevoUsuario);
         log.info("Usuario creado exitosamente con ID: {}", guardado.getUsuarioId());
+
+        // RF06: enviamos la contraseña provisional por correo. Si falla lanza una
+        // RuntimeException, la transacción se revierte y el usuario no queda creado.
+        correoService.enviarPasswordProvisional(
+                guardado.getCorreo(), guardado.getNombre(), passwordProvisional);
+
 
         return guardado;
     }
