@@ -1,11 +1,11 @@
 # MEMORY — AAC27  (≤ 50 líneas · actualizado: 2026-11-25)
 
 ## Estado actual
-- Etapa: adopción SDD brownfield (Génesis retroactivo). Arnés recién montado.
+- Etapa: adopción SDD brownfield (Génesis retroactivo). Arnés montado y commiteado.
 - Feature activa: ninguna en ciclo. Próxima: spec `003-proveedor` (CRUD, T-10, RF09/RF10/RF11-E/RF-P01).
-- Rama: `fix/t07-cierre` (commit `ae29d04` cerró T-07; pendiente PR → `develop`).
-- Última tarea completada: Etapa 2 del plan (arnés: agentes, comandos, AGENTS.md, este archivo).
-- Siguiente paso: aprobación humana G-Arnés → cerrar baseline Fase 0 (spec 000) → `/feature proveedor`.
+- Ramas abiertas (pendientes de PR → `develop`): `fix/t07-cierre` (`ae29d04`, cierre T-07) · `chore/sdd-bootstrap` (`fc483fc`, arnés + docs). Checkout actual: `chore/sdd-bootstrap`.
+- Última tarea completada: Etapas 0–2 del plan de adopción SDD (higiene repo, fundacionales, arnés). Árbol limpio.
+- Siguiente paso: abrir los 2 PRs a `develop`; luego cerrar baseline Fase 0 (spec 000) → `/feature proveedor` en entorno con `JAVA_HOME` para correr tests.
 
 ## Decisiones recientes
 - Adopción SDD: A-A-A-A (híbrido · subagentes reales · fases ROADMAP→specs NNN · cerrar T-07 primero). Plan: `C:\Users\hervi\.claude\plans\roadmap-...corbato.md`.
