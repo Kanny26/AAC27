@@ -36,12 +36,7 @@ public class LoginRequest {
     /**
      * Contraseña en texto plano enviada por el usuario.
      * NUNCA se almacena en BD. Solo se compara contra el BCrypt hash.
-     *
-     * <p>@Size: rechaza contraseñas demasiado cortas.
-     * El mínimo de 6 aquí es solo para validación básica de entrada;
-     * la política real (mín 8, mayúscula, número) se valida en el cambio de contraseña.
      */
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 }
