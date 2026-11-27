@@ -1,5 +1,13 @@
 # 🏛️ Contexto del Proyecto: Joyería AAC27
 
+> **Arnés SDD activo.** El código operativo para agentes vive en `@../AGENTS.md` (léelo primero),
+> y la Ley Suprema en `docs/governance/GENESIS.md`. Orden de lectura al iniciar: `AGENTS.md` →
+> `MEMORY.md` → spec activa (`specs/NNN-*/`). Este archivo aporta el contexto de dominio; las reglas
+> innegociables están en `docs/constitution.md`. Trabajamos por el ciclo SDD de 7 fases con puertas
+> humanas (G-Spec, G-Plan, G-Merge).
+
+@../AGENTS.md
+
 ## 🎯 Objetivo
 Sistema de gestión de joyería single-tenant para tienda física. Moneda base: COP. Roles: Administrador, Vendedor, Superadministrador.
 
