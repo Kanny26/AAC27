@@ -125,19 +125,28 @@ public class VentaController {
 
         /**
          * GET /api/v1/ventas/cliente/{clienteId} — Historial de ventas de un cliente.
-         * Útil para el perfil del cliente en el formulario de nueva venta.
+         *
+         * <p>
+         * RF17 (D1): Admin ve todas las ventas del cliente; Vendedor solo las que él
+         * registró. Si el cliente solo tiene ventas ajenas, devuelve 200 con página vacía
+         * (no 404, para no revelar que existen).
          */
         @GetMapping("/cliente/{clienteId}")
         public ResponseEntity<ApiResponse<Page<VentaResponse>>> ventasPorCliente(
-                        @PathVariable Long clienteId,
-                        @PageableDefault(size = 10, sort = "fechaVenta", direction = Sort.Direction.DESC) Pageable pageable) {
+                @PathVariable Long clienteId,
+                @PageableDefault(size = 10, sort = "fechaVenta", direction = Sort.Direction.DESC) Pageable pageable,
+                @AuthenticationPrincipal Usuario usuarioAutenticado) {
 
-                Page<VentaResponse> respuesta = ventaRepository
-                                .findByClienteClienteIdOrderByFechaVentaDesc(clienteId, pageable)
-                                .map(this::toVentaResponse);
+                boolean esAdmin = usuarioAutenticado.getRol().getNombre().name()
+                        .equalsIgnoreCase(RolConstants.ADMINISTRADOR);
 
-                return ResponseEntity.ok(
-                                ApiResponse.ok(respuesta, "Historial de compras del cliente obtenido"));
+                Page<Venta> ventasPagina = esAdmin
+                        ? ventaRepository.findByClienteClienteIdOrderByFechaVentaDesc(clienteId, pageable)
+                        : ventaRepository.findByClienteClienteIdAndUsuarioUsuarioIdOrderByFechaVentaDesc(
+                        clienteId, usuarioAutenticado.getUsuarioId(), pageable);
+
+                return ResponseEntity.ok(ApiResponse.ok(ventasPagina.map(this::toVentaResponse),
+                        "Historial de compras del cliente obtenido"));
         }
 
         // ──────────────────────────────────────────────────────────
