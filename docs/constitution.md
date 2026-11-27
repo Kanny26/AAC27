@@ -54,3 +54,4 @@ obligatorias de GENESIS §A.7. Sin spec aprobada no hay código de producción (
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | 1.0.0 | 2026-11-25 | Versión inicial destilada de CLAUDE.md + REQUISITOS | Adopción SDD brownfield | Humano |
+|1.0.1|2026-11-26|Fuente del arnés en .claude/ (desviación de G4.7)|Evitar deriva entre dos copias|Humano

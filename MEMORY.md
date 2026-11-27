@@ -23,3 +23,4 @@
 - DT-02/D2: apartados sin filtro por vendedor. Confirmar regla.
 - DT-03/D3: Swagger/`v3/api-docs` público en prod. Cerrar en T-12/T-34.
 - Módulos compra/venta/postventa parciales (DTOs/mappers) — DT-04.
+

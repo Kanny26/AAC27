@@ -54,9 +54,9 @@ Estados: `Pendiente` · `Implementada (baseline)` = ya existe en el código, se 
 > en el código y se documenta como línea base; se le hará spec solo si se vuelve a tocar (Spec-Anchored).
 
 ## Deuda técnica
-| ID | Descripción | Impacto | Propuesta | Estado |
-|---|---|---|---|---|
-| DT-01 | `GET /ventas/cliente/{id}` sin filtro por vendedor (D1 matriz) | Vendedor ve ventas ajenas | Decidir filtrar o excepción documentada | Abierta |
-| DT-02 | Apartados sin filtro por vendedor (D2 matriz) | Visibilidad amplia | Confirmar regla deseada | Abierta |
-| DT-03 | Swagger/`v3/api-docs` público en prod (D3) | Exposición de contrato | Cerrar en perfil prod (T-12/T-34) | Abierta |
-| DT-04 | Módulos compra/venta/postventa parciales (DTOs/mappers incompletos) | Contratos inestables | Completar en specs 009–013 | Abierta |
+| ID    | Descripción | Impacto | Propuesta                        | Estado |
+|-------|---|---|----------------------------------|-|
+| DT-01 | `GET /ventas/cliente/{id}` filtrar por vendedor, en PR B (D1 matriz) | Vendedor ve ventas ajenas | Decidir filtrar o excepción documentada | Abierta |
+| DT-02 | Apartados sin filtro por vendedor (D2 matriz) | Visibilidad amplia | Confirmado | Cerrado |
+| DT-03 | Swagger/`v3/api-docs` público en prod (D3) | Exposición de contrato | Cerrar en perfil prod (T-12)     | Abierta |
+| DT-04 | Módulos compra/venta/postventa parciales (DTOs/mappers incompletos) | Contratos inestables | Completar en specs 009–013       | Abierta |
