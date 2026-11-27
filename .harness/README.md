@@ -16,7 +16,7 @@ Si en el futuro se añade otra herramienta (OpenCode, Cursor…), se materializa
 | Agentes | `.claude/agents/{coordinator,planner,implementer,reviewer}.md` | Los 4 roles SDD |
 | Comandos | `.claude/commands/{feature,sdd-specify,sdd-clarify,sdd-plan,sdd-tasks,sdd-implement,sdd-validate,sdd-status,adr,bug,memory}.md` | Flujo SDD |
 | Skills | `.claude/skills/{spring-boot,mysql-flyway,react-vite,docker-compose}.md` | Conocimiento determinista existente |
-| MCP | `.mcp.json` + `.harness/mcp.md` | Servidores MCP aprobados |
+| MCP | `.harness/mcp.md` | Sin servidores MCP aprobados aún |
 
 ## Skills candidatas (pendientes, proponer antes de crear — G4.5)
 - `dinero-cop` — redondeo/formato COP, `BigDecimal`, prohibición de float (RN-001).

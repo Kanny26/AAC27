@@ -56,7 +56,7 @@ Estados: `Pendiente` · `Implementada (baseline)` = ya existe en el código, se 
 ## Deuda técnica
 | ID    | Descripción | Impacto | Propuesta                        | Estado |
 |-------|---|---|----------------------------------|-|
-| DT-01 | `GET /ventas/cliente/{id}` filtrar por vendedor, en PR B (D1 matriz) | Vendedor ve ventas ajenas | Decidir filtrar o excepción documentada | Abierta |
+| DT-01 | `GET /ventas/cliente/{id}` sin filtro por vendedor (D1 matriz) | Vendedor ve ventas ajenas | Decidido D1: vendedor solo ve las propias; se implementa en PR B | Decidida, pendiente de PR B |
 | DT-02 | Apartados sin filtro por vendedor (D2 matriz) | Visibilidad amplia | Confirmado | Cerrado |
-| DT-03 | Swagger/`v3/api-docs` público en prod (D3) | Exposición de contrato | Cerrar en perfil prod (T-12)     | Abierta |
+| DT-03 | Swagger/`v3/api-docs` público en prod (D3) | Exposición de contrato | Decidido D3: `denyAll` + springdoc desactivado en prod, en T-12 | Decidida, pendiente de T-12 |
 | DT-04 | Módulos compra/venta/postventa parciales (DTOs/mappers incompletos) | Contratos inestables | Completar en specs 009–013       | Abierta |
