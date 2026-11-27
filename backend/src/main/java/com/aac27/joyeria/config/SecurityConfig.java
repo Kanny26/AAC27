@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.config.Customizer;
 
 /**
  * Configuración central de Spring Security.
@@ -78,7 +79,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 // CORS: usa el bean CorsConfigurationSource definido en CorsConfig
-                .cors(cors -> cors.configure(http))
+                .cors(Customizer.withDefaults())
 
                 // Reglas de autorización por endpoint
                 .authorizeHttpRequests(auth -> auth
