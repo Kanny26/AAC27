@@ -21,7 +21,10 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
 
     /** Ventas de un cliente específico, paginadas. */
     Page<Venta> findByClienteClienteIdOrderByFechaVentaDesc(Long clienteId, Pageable pageable);
-
+    
+    /** Historial de un cliente limitado a las ventas de un vendedor (RF17, D1). */
+    Page<Venta> findByClienteClienteIdAndUsuarioUsuarioIdOrderByFechaVentaDesc(
+            Long clienteId, Long usuarioId, Pageable pageable);
     /** Ventas de un vendedor, paginadas. */
     Page<Venta> findByUsuarioUsuarioIdOrderByFechaVentaDesc(Long usuarioId, Pageable pageable);
 
